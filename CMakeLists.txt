@@ -19,7 +19,8 @@ set_target_properties(
 
 target_include_directories(
     main
-    PRIVATE lib/)
+    PRIVATE lib/
+    PRIVATE lib/glm-0.9.8.5)
 
 target_link_libraries(
     main

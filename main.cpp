@@ -11,6 +11,7 @@ using s64 = std::int64_t;
 
 
 #include <tiny_obj_loader/tiny_obj_loader.h>
+#include <glm/glm.hpp>
 
 
 // @ref GetBaseDir copy-pasted from https://github.com/syoyo/tinyobjloader/blob/master/examples/viewer/viewer.cc - 08.05.2018
@@ -121,16 +122,39 @@ int main(const int argc, const char** argv) {
         s64 a,b,c;
     };
 
-
-    struct OKMaterial 
+   struct UniformTexture
     {
-
+        std::string tag;
+       // Texture texture;
     };
+
+    struct UniformFloat
+    {
+        std::string tag;
+        float  value;
+    };
+
+    struct UniformVec3
+    {
+        std::string tag;
+        glm::vec3 vector;
+    };
+
+    struct OKMaterial
+    {
+        std::string                 m_tag;
+        std::vector<UniformTexture> m_unimaps;
+        std::vector<UniformFloat>   m_univalues;
+        std::vector<UniformVec3>    m_univectors;
+        OKMaterial()=default;
+    };
+
 
     struct OKMesh 
     {
+        std::string             tag;
         std::vector<OKTriangle> triangles;
-        OKMaterial material;
+        OKMaterial              material;
     };
 
     std::vector<OKVertex> overkillVertices;
@@ -292,75 +316,80 @@ int main(const int argc, const char** argv) {
         
         } // END FOR FACES
 
+
+ 
      
         // Assuming that all faces across a mesh share the same material.
         // Maybe this is a dirty assumption, but it seems like all the .obj I 
         // have seen thus far, only has 1 material per mesh. If you find something
         // else, please let me know - JSolsvik 08.05.2018
-        printf("materialID = %lu\n", static_cast<u64>( mesh.material_ids[0] ));
 
         auto& meshMaterial = materials[mesh.material_ids[0]];
 
-        printf("material name = %s\n", meshMaterial.name.c_str() );
-        
-        printf("  material.Ka(mbient) = (%f, %f ,%f)\n",
-           static_cast<const double>(meshMaterial.ambient[0]),
-           static_cast<const double>(meshMaterial.ambient[1]),
-           static_cast<const double>(meshMaterial.ambient[2]));
+        auto debugPrintMaterial = [&]() {
 
-        printf("  material.Kd(iffuse) = (%f, %f ,%f)\n",
-           static_cast<const double>(meshMaterial.diffuse[0]),
-           static_cast<const double>(meshMaterial.diffuse[1]),
-           static_cast<const double>(meshMaterial.diffuse[2]));
+            printf("materialID = %lu\n", static_cast<u64>( mesh.material_ids[0] ));
+            printf("material name = %s\n", meshMaterial.name.c_str() );
+            
+            printf("  material.Ka(mbient) = (%f, %f ,%f)\n",
+               static_cast<const float>(meshMaterial.ambient[0]),
+               static_cast<const float>(meshMaterial.ambient[1]),
+               static_cast<const float>(meshMaterial.ambient[2]));
 
-        printf("  material.Ks(pecular) = (%f, %f ,%f)\n",
-           static_cast<const double>(meshMaterial.specular[0]),
-           static_cast<const double>(meshMaterial.specular[1]),
-           static_cast<const double>(meshMaterial.specular[2]));
+            printf("  material.Kd(iffuse) = (%f, %f ,%f)\n",
+               static_cast<const float>(meshMaterial.diffuse[0]),
+               static_cast<const float>(meshMaterial.diffuse[1]),
+               static_cast<const float>(meshMaterial.diffuse[2]));
 
-        printf("  material.Tr(ansmittance) = (%f, %f ,%f)\n",
-           static_cast<const double>(meshMaterial.transmittance[0]),
-           static_cast<const double>(meshMaterial.transmittance[1]),
-           static_cast<const double>(meshMaterial.transmittance[2]));
+            printf("  material.Ks(pecular) = (%f, %f ,%f)\n",
+               static_cast<const float>(meshMaterial.specular[0]),
+               static_cast<const float>(meshMaterial.specular[1]),
+               static_cast<const float>(meshMaterial.specular[2]));
 
-        printf("  material.Ke(mission) = (%f, %f ,%f)\n",
-           static_cast<const double>(meshMaterial.emission[0]),
-           static_cast<const double>(meshMaterial.emission[1]),
-           static_cast<const double>(meshMaterial.emission[2]));
+            printf("  material.Tr(ansmittance) = (%f, %f ,%f)\n",
+               static_cast<const float>(meshMaterial.transmittance[0]),
+               static_cast<const float>(meshMaterial.transmittance[1]),
+               static_cast<const float>(meshMaterial.transmittance[2]));
 
-        printf("  material.Ns(hininess) = %f\n",
-            static_cast<const double>(meshMaterial.shininess));
+            printf("  material.Ke(mission) = (%f, %f ,%f)\n",
+               static_cast<const float>(meshMaterial.emission[0]),
+               static_cast<const float>(meshMaterial.emission[1]),
+               static_cast<const float>(meshMaterial.emission[2]));
 
-        printf("  material.Ni(or) = %f\n", 
-            static_cast<const double>(meshMaterial.ior));
+            printf("  material.Ns(hininess) = %f\n",
+                static_cast<const float>(meshMaterial.shininess));
+
+            printf("  material.Ni(or) = %f\n", 
+                static_cast<const float>(meshMaterial.ior));
 
 
-        printf("  material.dissolve = %f\n",    
-            static_cast<const double>(meshMaterial.dissolve));
+            printf("  material.dissolve = %f\n",    
+                static_cast<const float>(meshMaterial.dissolve));
 
-        printf("  material.illum(inosity) = %d\n", meshMaterial.illum);
+            printf("  material.illum(inosity) = %d\n", meshMaterial.illum);
 
-        printf("  material.map_Ka(mbient) = %s\n",   meshMaterial.ambient_texname.c_str());
-        printf("  material.map_Kd(iffuse) = %s\n",   meshMaterial.diffuse_texname.c_str());
-        printf("  material.map_Ks(pecular) = %s\n",   meshMaterial.specular_texname.c_str());
-        printf("  material.map_Ns(pecular_highlight) = %s\n",   meshMaterial.specular_highlight_texname.c_str());
-        printf("  material.map_bump = %s\n", meshMaterial.bump_texname.c_str());
-        
-        printf("    bump_multiplier = %f\n",  static_cast<const double>(meshMaterial.bump_texopt.bump_multiplier));
+            printf("  material.map_Ka(mbient) = %s\n",   meshMaterial.ambient_texname.c_str());
+            printf("  material.map_Kd(iffuse) = %s\n",   meshMaterial.diffuse_texname.c_str());
+            printf("  material.map_Ks(pecular) = %s\n",   meshMaterial.specular_texname.c_str());
+            printf("  material.map_Ns(pecular_highlight) = %s\n",   meshMaterial.specular_highlight_texname.c_str());
+            printf("  material.map_bump = %s\n", meshMaterial.bump_texname.c_str());
+            
+            printf("    bump_multiplier = %f\n",  static_cast<const float>(meshMaterial.bump_texopt.bump_multiplier));
 
-        printf("  material.map_alpha = %s\n",      meshMaterial.alpha_texname.c_str());
-        printf("  material.disp(lacement) = %s\n", meshMaterial.displacement_texname.c_str());
+            printf("  material.map_alpha = %s\n",      meshMaterial.alpha_texname.c_str());
+            printf("  material.disp(lacement) = %s\n", meshMaterial.displacement_texname.c_str());
 
-        // Uknown parameters 
-        std::map<std::string, std::string>::const_iterator it(
-            meshMaterial.unknown_parameter.begin());
-        std::map<std::string, std::string>::const_iterator itEnd(
-            meshMaterial.unknown_parameter.end());
+            printf("\n");
+        };
 
-        for (; it != itEnd; it++) {
-          printf("  material.%s = %s\n", it->first.c_str(), it->second.c_str());
-        }
-        printf("\n");
+
+        auto overkillMaterial = OKMaterial{};
+
+        overkillMaterial.m_univectors.push_back(UniformVec3{ "ambient", glm::vec3{
+               static_cast<const float>(meshMaterial.ambient[0]),
+               static_cast<const float>(meshMaterial.ambient[1]),
+               static_cast<const float>(meshMaterial.ambient[2])
+        }});
 
     /*
         PBR = Physically based rendering.. Leaving these features commented out for now, since I want to focus only 
