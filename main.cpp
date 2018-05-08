@@ -125,7 +125,7 @@ int main(const int argc, const char** argv) {
    struct UniformTexture
     {
         std::string tag;
-       // Texture texture;
+        std::string texfilepath;
     };
 
     struct UniformFloat
@@ -332,39 +332,39 @@ int main(const int argc, const char** argv) {
             printf("material name = %s\n", meshMaterial.name.c_str() );
             
             printf("  material.Ka(mbient) = (%f, %f ,%f)\n",
-               static_cast<const float>(meshMaterial.ambient[0]),
-               static_cast<const float>(meshMaterial.ambient[1]),
-               static_cast<const float>(meshMaterial.ambient[2]));
+               meshMaterial.ambient[0],
+               meshMaterial.ambient[1],
+               meshMaterial.ambient[2]);
 
             printf("  material.Kd(iffuse) = (%f, %f ,%f)\n",
-               static_cast<const float>(meshMaterial.diffuse[0]),
-               static_cast<const float>(meshMaterial.diffuse[1]),
-               static_cast<const float>(meshMaterial.diffuse[2]));
+               meshMaterial.diffuse[0],
+               meshMaterial.diffuse[1],
+               meshMaterial.diffuse[2]);
 
             printf("  material.Ks(pecular) = (%f, %f ,%f)\n",
-               static_cast<const float>(meshMaterial.specular[0]),
-               static_cast<const float>(meshMaterial.specular[1]),
-               static_cast<const float>(meshMaterial.specular[2]));
+               meshMaterial.specular[0],
+               meshMaterial.specular[1],
+               meshMaterial.specular[2]);
 
             printf("  material.Tr(ansmittance) = (%f, %f ,%f)\n",
-               static_cast<const float>(meshMaterial.transmittance[0]),
-               static_cast<const float>(meshMaterial.transmittance[1]),
-               static_cast<const float>(meshMaterial.transmittance[2]));
+               meshMaterial.transmittance[0],
+               meshMaterial.transmittance[1],
+               meshMaterial.transmittance[2]);
 
             printf("  material.Ke(mission) = (%f, %f ,%f)\n",
-               static_cast<const float>(meshMaterial.emission[0]),
-               static_cast<const float>(meshMaterial.emission[1]),
-               static_cast<const float>(meshMaterial.emission[2]));
+               meshMaterial.emission[0],
+               meshMaterial.emission[1],
+               meshMaterial.emission[2]);
 
             printf("  material.Ns(hininess) = %f\n",
-                static_cast<const float>(meshMaterial.shininess));
+                meshMaterial.shininess);
 
             printf("  material.Ni(or) = %f\n", 
-                static_cast<const float>(meshMaterial.ior));
+                meshMaterial.ior);
 
 
             printf("  material.dissolve = %f\n",    
-                static_cast<const float>(meshMaterial.dissolve));
+                meshMaterial.dissolve);
 
             printf("  material.illum(inosity) = %d\n", meshMaterial.illum);
 
@@ -373,24 +373,63 @@ int main(const int argc, const char** argv) {
             printf("  material.map_Ks(pecular) = %s\n",   meshMaterial.specular_texname.c_str());
             printf("  material.map_Ns(pecular_highlight) = %s\n",   meshMaterial.specular_highlight_texname.c_str());
             printf("  material.map_bump = %s\n", meshMaterial.bump_texname.c_str());
-            
-            printf("    bump_multiplier = %f\n",  static_cast<const float>(meshMaterial.bump_texopt.bump_multiplier));
-
             printf("  material.map_alpha = %s\n",      meshMaterial.alpha_texname.c_str());
             printf("  material.disp(lacement) = %s\n", meshMaterial.displacement_texname.c_str());
 
             printf("\n");
         };
 
+        debugPrintMaterial();
 
         auto overkillMaterial = OKMaterial{};
 
+        overkillMaterial.m_tag = meshMaterial.name;
+
         overkillMaterial.m_univectors.push_back(UniformVec3{ "ambient", glm::vec3{
-               static_cast<const float>(meshMaterial.ambient[0]),
-               static_cast<const float>(meshMaterial.ambient[1]),
-               static_cast<const float>(meshMaterial.ambient[2])
+              meshMaterial.ambient[0],
+              meshMaterial.ambient[1],
+              meshMaterial.ambient[2]
         }});
 
+        overkillMaterial.m_univectors.push_back(UniformVec3{ "diffuse", glm::vec3{
+              meshMaterial.diffuse[0],
+              meshMaterial.diffuse[1],
+              meshMaterial.diffuse[2]
+        }});
+
+        overkillMaterial.m_univectors.push_back(UniformVec3{ "specular", glm::vec3{
+              meshMaterial.specular[0],
+              meshMaterial.specular[1],
+              meshMaterial.specular[2]
+        }});
+
+        overkillMaterial.m_univectors.push_back(UniformVec3{ "transmittance", glm::vec3{
+              meshMaterial.transmittance[0],
+              meshMaterial.transmittance[1],
+              meshMaterial.transmittance[2]
+        }});
+
+        overkillMaterial.m_univectors.push_back(UniformVec3{ "emission", glm::vec3{
+              meshMaterial.emission[0],
+              meshMaterial.emission[1],
+              meshMaterial.emission[2]
+        }});
+
+        overkillMaterial.m_univalues.push_back(UniformFloat {"shininess", meshMaterial.shininess});
+        overkillMaterial.m_univalues.push_back(UniformFloat {"ior", meshMaterial.ior});  // Dunno what this is suppposed to be
+        overkillMaterial.m_univalues.push_back(UniformFloat {"dissolve", meshMaterial.dissolve});
+        overkillMaterial.m_univalues.push_back(UniformFloat {"illuminosity", static_cast<float>(meshMaterial.illum) });
+
+        overkillMaterial.m_unimaps.push_back(UniformTexture {"map_ambient", meshMaterial.ambient_texname});
+        overkillMaterial.m_unimaps.push_back(UniformTexture {"map_diffuse", meshMaterial.diffuse_texname});
+        overkillMaterial.m_unimaps.push_back(UniformTexture {"map_specular", meshMaterial.specular_texname});
+        overkillMaterial.m_unimaps.push_back(UniformTexture {"map_specular_highlight", meshMaterial.specular_highlight_texname});
+        overkillMaterial.m_unimaps.push_back(UniformTexture {"map_bump", meshMaterial.bump_texname});
+        overkillMaterial.m_unimaps.push_back(UniformTexture {"map_alpha", meshMaterial.alpha_texname});
+        overkillMaterial.m_unimaps.push_back(UniformTexture {"map_displacement", meshMaterial.displacement_texname});
+
+
+        overkillMesh.material = overkillMaterial;
     /*
         PBR = Physically based rendering.. Leaving these features commented out for now, since I want to focus only 
                 on core material properties. Hopefully I will get back to this soon. JSolsvik 08.05.2018
